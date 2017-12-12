@@ -16,7 +16,7 @@ defmodule TwitterWeb.RoomChannel do
         res = cond do
             (body == "register") -> 
                 userid = GenServer.call(engine_pid, :register) |> Integer.to_string
-                "Registered. Your userid is #{userid}. Use this for further queries!"
+                "Registered. Your userid is #{userid}. You can use this for your further queries"
             true -> "unsupported command: " <> body     
         end
         broadcast! socket, "new_msg", %{body: res}

@@ -36,6 +36,18 @@
 </div>
 
 <!--TODO: better way to input all commands? -->
+<!--
+# ./project4_client simulate see_tweets NUM_CLIENTS (tweet: userid, tweet)
+# ./project4_client simulate see_tweet_rate NUM_CLIENTS (tweet: userid, tweet)
+# ./project4_client subscribe_to USERID_1 USERID_2 (subscribe: userId, subscribeToId)
+# ./project4_client sample_hashtags(sample_hashtags)
+# ./project4_client tweets_with_hashtag HASHTAG  (hashtag: #)
+# ./project4_client sample_mentions(sample_mentions)
+# ./project4_client tweets_with_mention MENTION (mention: @)
+# ./project4_client feed USERID (feed)
+# ./project4_client retweet USERID (tweet: userid, tweet) # after looking at feed
+
+-->
 <div id="messages"></div>
 <%# Register(type 'y' and enter): <input id="register" type="text"></input> %>
 <input id="chat-input" type="text"></input>
