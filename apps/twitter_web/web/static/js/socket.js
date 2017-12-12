@@ -58,19 +58,22 @@ socket.connect()
 // let channel = socket.channel("topic:subtopic", {})
 let channel           = socket.channel("room:lobby", {})
 let chatInput         = document.querySelector("#chat-input")
+// let register         = document.querySelector("#register")
 let messagesContainer = document.querySelector("#messages")
 
+//typing and entering in textbox
 chatInput.addEventListener("keypress", event => {
   if(event.keyCode === 13){
-    channel.push("new_msg", {body: chatInput.value})
-    chatInput.value = ""
+    channel.push("new_msg", {body: chatInput.value}) //push to channel
+    chatInput.value = "" //to reset it
   }
 })
 
+//append message coming from channel to end of msg container
 channel.on("new_msg", payload => {
-  let messageItem = document.createElement("li");
-  messageItem.innerText = `[${Date()}] ${payload.body}`
-  messagesContainer.appendChild(messageItem)
+  let messageItem = document.createElement("li"); //create list element
+  messageItem.innerText = `[${Date()}] ${payload.body}` //add date and stuff to it
+  messagesContainer.appendChild(messageItem) //sppend at the end of list
 })
 
 channel.join()

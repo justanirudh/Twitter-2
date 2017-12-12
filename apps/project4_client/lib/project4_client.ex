@@ -4,8 +4,8 @@ defmodule TwitterClient do
   """
 
 # arguments
-# ./project4_client simulate see_tweets NUM_CLIENTS
-# ./project4_client simulate see_tweet_rate NUM_CLIENTS
+# ./project4_client simulate see_tweets NUM_CLIENTS (tweet)
+# ./project4_client simulate see_tweet_rate NUM_CLIENTS (tweet)
 # ./project4_client subscribe_to USERID_1 USERID_2
 # ./project4_client sample_hashtags
 # ./project4_client tweets_with_hashtag HASHTAG  #(HASHTAG should be WITHOUT the '#' symbol)

@@ -13,6 +13,7 @@ defmodule TwitterWeb do
       # Start your own worker by calling: TwitterWeb.Worker.start_link(arg1, arg2, arg3)
       # worker(TwitterWeb.Worker, [arg1, arg2, arg3]),
     ]
+    Task.start(TwitterEngine, :main, [""]) #start engine
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

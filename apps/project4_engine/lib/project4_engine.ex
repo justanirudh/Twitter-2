@@ -25,9 +25,10 @@ defmodule TwitterEngine do
     state = %{:curr_user_id => 0, :curr_tweet_id => 0}
     :global.register_name(:engine, GenServer.start_link(Engine, state) |> elem(1)) 
 
+    IO.inspect "Twitter engine started"
+
     #loop infinitely
     loop()
-
 
   end
 end

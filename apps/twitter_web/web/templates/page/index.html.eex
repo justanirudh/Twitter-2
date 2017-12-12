@@ -34,5 +34,8 @@
     </ul>
   </div>
 </div>
+
+<!--TODO: better way to input all commands? -->
 <div id="messages"></div>
+<%# Register(type 'y' and enter): <input id="register" type="text"></input> %>
 <input id="chat-input" type="text"></input>
