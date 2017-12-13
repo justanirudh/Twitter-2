@@ -68,14 +68,12 @@ let retweet = document.querySelector("#retweet")
 
 //register
 register.addEventListener("click", function(){
-  channel.push("new_msg", {body: "register"}) //push to channel
+  channel.push("register", {}) //push to channel
 })
 
 //tweet
 tweet.addEventListener("click", function(){
-  var prefix = "tweet:"
-  var res = prefix.concat(chatInput.value)
-  channel.push("new_msg", {body: res}) //push to channel
+  channel.push("tweet", {body: chatInput.value}) //push to channel
   chatInput.value = "" //to reset it
 })
 

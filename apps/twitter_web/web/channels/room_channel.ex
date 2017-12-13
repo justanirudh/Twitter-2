@@ -8,24 +8,56 @@ defmodule TwitterWeb.RoomChannel do
         {:ok, assign(socket, :engine_pid, engine_pid)}
     end
 
+    def handle_in("register", %{}, socket) do
+        userid = socket.assigns[:userid]
+        res = if(userid != nil) do
+            "Error: Already registered."
+        else
+            engine_pid = socket.assigns[:engine_pid]
+            channel_pid = self()
+            userid = GenServer.call(engine_pid, {:register, channel_pid})
+            socket = assign(socket, :userid, userid)
+            "Registered. Your userid is #{userid |> Integer.to_string}"
+        end
+        push socket, "new_msg", %{body: res}
+        {:noreply, socket}
+    end
+
+    def handle_in("tweet", %{"body" => tweet_content}, socket) do
+        userid = socket.assigns[:userid]
+        res = if(userid == nil) do
+            "Error: You have not registered. First register by typing 'register' in textbox"
+        else
+            engine_pid = socket.assigns[:engine_pid]
+            if tweet_content == "" do
+                "Error: Empty tweet"
+            else
+                :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
+                "You tweeted: #{tweet_content}"
+            end    
+        end
+        push socket, "new_msg", %{body: res}
+        {:noreply, socket}
+    end
+
     #TODO: if time permits, convert to 1 handle_in per action - 
     #channel.push("new_msg", {body: chatInput.value})
     def handle_in("new_msg", %{"body" => body}, socket) do
         userid = socket.assigns[:userid]
         engine_pid = socket.assigns[:engine_pid]
         res = cond do
-            userid == nil && body == "register" -> #register
-                channel_pid = self()
-                userid = GenServer.call(engine_pid, {:register, channel_pid})
-                socket = assign(socket, :userid, userid)
-                "Registered. Your userid is #{userid |> Integer.to_string}"
+            # userid == nil && body == "register" -> #register
+            #     channel_pid = self()
+            #     userid = GenServer.call(engine_pid, {:register, channel_pid})
+            #     socket = assign(socket, :userid, userid)
+            #     "Registered. Your userid is #{userid |> Integer.to_string}"
             userid == nil -> 
                 "Error: You have not registered. First register by typing 'register' in textbox"
             true ->
                 cond do
 
-                    body == "register" -> #2nd time register
-                        "Error: Already registered."
+                    # body == "register" -> #2nd time register
+                    #     "Error: Already registered."
 
                     String.starts_with?(body, "tweet:" )  -> #tweet
                         tweet_content = body |> String.slice(6..-1) |> String.trim()
