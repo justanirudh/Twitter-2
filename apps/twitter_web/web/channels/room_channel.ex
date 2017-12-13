@@ -8,6 +8,7 @@ defmodule TwitterWeb.RoomChannel do
         {:ok, assign(socket, :engine_pid, engine_pid)}
     end
 
+    #TODO: if time permits, convert to 1 handle_in per action - 
     #channel.push("new_msg", {body: chatInput.value})
     def handle_in("new_msg", %{"body" => body}, socket) do
         userid = socket.assigns[:userid]
@@ -26,11 +27,15 @@ defmodule TwitterWeb.RoomChannel do
                     body == "register" -> #2nd time register
                         "Error: Already registered."
 
-                    String.starts_with?(body, "tweet:" ) || String.starts_with?(body, "Tweet:") -> #tweet
-                        tweet_content = body |> String.slice(6..-1) |> String.trim()        
-                        :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
-                        "You tweeted: #{tweet_content}"
-    
+                    String.starts_with?(body, "tweet:" )  -> #tweet
+                        tweet_content = body |> String.slice(6..-1) |> String.trim()
+                        if tweet_content == "" do
+                            "Error: Empty tweet"
+                        else
+                            :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
+                            "You tweeted: #{tweet_content}"
+                        end    
+                        
                     String.starts_with?(body, "subscribe:" ) || String.starts_with?(body, "Subscribe:") -> #subscribe
                         subsId = body |> String.slice(10..-1) |> String.trim()
                         is_int = case :re.run(subsId, "^[0-9]*$") do

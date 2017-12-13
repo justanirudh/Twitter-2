@@ -67,17 +67,19 @@ register.addEventListener("click", function(){
 })
 
 tweet.addEventListener("click", function(){
-  channel.push("new_msg", {body: chatInput.value}) //push to channel
+  var prefix = "tweet:"
+  var res = prefix.concat(chatInput.value)
+  channel.push("new_msg", {body: res}) //push to channel
   chatInput.value = "" //to reset it
 })
 
-//TODO: remove this
-chatInput.addEventListener("keypress", event => {
-  if(event.keyCode === 13){
-    channel.push("new_msg", {body: chatInput.value}) //push to channel
-    chatInput.value = "" //to reset it
-  }
-})
+//TODO: remove this after all buttons added
+// chatInput.addEventListener("keypress", event => {
+//   if(event.keyCode === 13){
+//     channel.push("new_msg", {body: chatInput.value}) //push to channel
+//     chatInput.value = "" //to reset it
+//   }
+// })
 
 //append message coming from channel to end of msg container
 channel.on("new_msg", payload => {
