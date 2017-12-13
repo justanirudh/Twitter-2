@@ -75,7 +75,6 @@ defmodule Engine do
         {:reply, curr_user_id, Map.put(state, :curr_user_id, curr_user_id + 1 )} #reply their userid to client
     end
 
-    #TODO: make this push based
     #feed-tested
     def handle_call({:feed, userId}, _from, state) do
         #list of userids

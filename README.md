@@ -54,7 +54,7 @@ It contains the Ui logic
 
 ##socket.js (APIs in javascript)
 It contains the API logic. Phoenix takes care of serializing and deserializing the javascript objects. Hence, it is not required to be done by hand. Every button has a listener associated with it. In accordance with what button was pressed, I send the relevant information to the Channel. Except register for all the other API calls, I prepend a string that gets matched in Channel to perform appripiate action. 
-For example, for tweeting, I attach a suffix of 'tweet:' to each tweet
+For example, for tweeting, I attach a prefix of 'tweet:' to each tweet
 
 ##room_channel.ex (Client using Phoenix)
 This is the primary interface between Twitter engine and client. It has methods that ping the engine. It is also pinged by the engine for sending feed information
@@ -65,7 +65,7 @@ This is the primary interface between Twitter engine and client. It has methods 
 4. "get: [# | @]" - getting all tweets that have a particular hashtag or a particular mention
 5. "retweet: [TWEET_ID]" - retweeting a tweet that came in a user's feed from another user.
 
-#modifications to the engine (Engine using Phoenix)
+#modifications to the engine (Changed in engine using Phoenix)
 I had to do a few modifications to the engine to work with channels
 1. I added a new table that saves mapping of userid to channel-pid. This helps in efficient forwarding of feed information to subscribers of a user that just tweeted
 2. Addition of a subscribers column to userid-subscribedto table for efficient retreival of subscribers for a user
