@@ -1,4 +1,4 @@
-defmodule UserIdSubscribedto do
+defmodule UserIdSubscribedtoSubscribers do
     use GenServer
     #schema: userid string, subscribed_to_id []
 
@@ -10,7 +10,7 @@ defmodule UserIdSubscribedto do
 
     #insert
     def handle_call({:insert, userId}, _from, state) do
-        :ets.insert(:uss_table, {userId, []})
+        :ets.insert(:uss_table, {userId, [], []})
         {:reply, :ok, state}
     end
 
@@ -30,8 +30,12 @@ defmodule UserIdSubscribedto do
             true ->
                 #add to subscribed_to list of userid
                 subscribed_to_list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1)        
-                #replace row
                 :ets.insert(:uss_table, {userId, [subscribeToId | subscribed_to_list]})
+
+                #add to subscriber's list of subscribeToId
+                subscribers_list = :ets.lookup(:uss_table, subscribeToId) |> Enum.at(0) |> elem(2)
+                :ets.insert(:uss_table, {subscribeToId, [userId | subscribers_list]})
+
                 {:reply, "You are subscribed to feed of #{subscribeToId}",  state}
         end
     end

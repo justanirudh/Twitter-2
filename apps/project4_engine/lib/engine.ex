@@ -97,14 +97,6 @@ defmodule Engine do
         hashtags = get_hashtags(tweet)
         mentions = get_mentions(tweet)
         curr_tweet_id = Map.get(state, :curr_tweet_id)
-        #Not required for this project. Was only for simulation for calculating stats
-        #print_every = Map.get(state, :print_every)
-        # if curr_tweet_id != 0 && rem(curr_tweet_id, print_every) == 0 do
-        #     IO.inspect state
-        #     client_master_pid = Map.get(state, :client_master_pid)
-        #     send client_master_pid, {:print, print_every} 
-        #     IO.inspect "sent stats to client-master"   
-        # end
         #add to userid-tweetids table
         :ok = GenServer.call(:ut, {:insert_or_update, userId, curr_tweet_id}, :infinity)
         #add to tweetid-tweet-ts table
