@@ -22,6 +22,12 @@ defmodule Engine do
         |> Enum.map(fn({tw,_}) -> tw end)
     end
 
+    defp push_tweet_to_all_subscribers(userId, tweet) do
+        subscribers = GenServer.call(:uss, {:get, :subscribers, userId})
+        channelpids = Enum.map(subscribers, fn(sid) -> GenServer.call(:uc, {:get, sid}) end)
+        channelpids |> Enum.each(fn(cpid) ->  send(cpid, {:feed, userId, tweet})  end)
+    end
+
     def init(state) do
         #epmd -daemon
         {:ok, _} = Node.start(String.to_atom("engine@127.0.0.1"))
@@ -88,7 +94,7 @@ defmodule Engine do
 
     #subscribe - tested
     def handle_call({:subscribe, userId, subscribeToId}, _from, state) do
-        IO.inspect "subscribing #{userId} to #{subscribeToId}"
+        IO.inspect "trying to subscribe #{userId} to #{subscribeToId}"
         res = GenServer.call(:uss, {:update, userId, subscribeToId})
         {:reply, res, state} 
     end
@@ -111,6 +117,8 @@ defmodule Engine do
         if(mentions != []) do
             :ok = GenServer.call(:mt, {:insert_or_update, mentions, curr_tweet_id}, :infinity)    
         end
+        #push tweet to all subscribers
+        push_tweet_to_all_subscribers(userId, tweet)
 
         {:reply, :ok, Map.put(state, :curr_tweet_id, curr_tweet_id + 1)} 
     end

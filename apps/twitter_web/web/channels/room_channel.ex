@@ -29,7 +29,7 @@ defmodule TwitterWeb.RoomChannel do
                     String.starts_with?(body, "tweet:" ) || String.starts_with?(body, "Tweet:") -> #tweet
                         tweet_content = body |> String.slice(6..-1) |> String.trim()        
                         :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
-                        "Tweeted: #{tweet_content}"
+                        "You tweeted: #{tweet_content}"
     
                     String.starts_with?(body, "subscribe:" ) || String.starts_with?(body, "Subscribe:") ->
                         subsId = body |> String.slice(10..-1) |> String.trim()
@@ -53,5 +53,11 @@ defmodule TwitterWeb.RoomChannel do
         push socket, "new_msg", %{body: res}
         {:noreply, socket}
     end
+
+    def handle_info({:feed, userId, tweet}, socket) do
+        res = "UserId " <> Integer.to_string(userId) <> " tweeted: #{tweet}"
+        push socket, "new_msg", %{body: res}
+        {:noreply, socket}
+      end
 
   end

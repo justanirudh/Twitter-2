@@ -19,6 +19,12 @@ defmodule UserIdSubscribedtoSubscribers do
         {:reply, list, state}
     end
 
+    #get subscribers
+    def handle_call({:get, :subscribers, userId}, _from, state) do
+        list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(2)     
+        {:reply, list, state}
+    end
+
     #update
     def handle_call({:update, userId, subscribeToId}, _from, state) do
         cond do
@@ -28,12 +34,18 @@ defmodule UserIdSubscribedtoSubscribers do
                 {:reply, "Error: You are already subscribed to #{subscribeToId}",  state}
             true ->
                 #add to subscribed_to list of userid
-                subscribed_to_list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1)        
-                :ets.insert(:uss_table, {userId, [subscribeToId | subscribed_to_list]})
+                subscribed_to_list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1)
+                subscribers_list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(2)      
+                :ets.insert(:uss_table, {userId, [subscribeToId | subscribed_to_list], subscribers_list})
+
+                IO.inspect "added to subscribed to list"
 
                 #add to subscriber's list of subscribeToId
                 subscribers_list = :ets.lookup(:uss_table, subscribeToId) |> Enum.at(0) |> elem(2)
-                :ets.insert(:uss_table, {subscribeToId, [userId | subscribers_list]})
+                subscribed_to_list = :ets.lookup(:uss_table, subscribeToId) |> Enum.at(0) |> elem(1)
+                :ets.insert(:uss_table, {subscribeToId, subscribed_to_list, [userId | subscribers_list]})
+
+                IO.inspect "added to subscribers list"
 
                 {:reply, "You are subscribed to feed of #{subscribeToId}",  state}
         end
