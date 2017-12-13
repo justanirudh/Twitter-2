@@ -53,13 +53,13 @@ defmodule TwitterWeb.RoomChannel do
                             IO.inspect "inputted non-integer id"
                             "Error: Please input a valid userid."        
                         end
-                    String.starts_with?(body, "get:" ) || String.starts_with?(body, "Get:") -> #get # or @
+                    String.starts_with?(body, "get:") -> #get # or @
                         tag = body |> String.slice(4..-1) |> String.trim()
                         cond do
                             String.starts_with?(tag, "#" ) ->
-                                GenServer.call(engine_pid, {:hashtag, :hashtag, tag}) |> Enum.join(", ")
+                                "Tweets with hashtag #{tag} are: " <> GenServer.call(engine_pid, {:hashtag, :hashtag, tag}) |> Enum.join(", ")
                             String.starts_with?(tag, "@" ) ->
-                                GenServer.call(engine_pid, {:mention, :mention, tag}) |> Enum.join(", ")
+                                "Tweets with mention #{tag} are: " <> GenServer.call(engine_pid, {:mention, :mention, tag}) |> Enum.join(", ")
                             true -> "Error: Invalid tag. It should either start with # or @"
                         end
                     String.starts_with?(body, "retweet:" ) || String.starts_with?(body, "Retweet:") -> #retweet

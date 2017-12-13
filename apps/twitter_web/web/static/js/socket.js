@@ -62,6 +62,8 @@ let messagesContainer = document.querySelector("#messages")
 let register = document.querySelector("#register")
 let tweet = document.querySelector("#tweet")
 let subscribe = document.querySelector("#subscribe")
+let hashtag = document.querySelector("#hashtag")
+let mention = document.querySelector("#mention")
 
 //register
 register.addEventListener("click", function(){
@@ -79,6 +81,22 @@ tweet.addEventListener("click", function(){
 //subscribe
 subscribe.addEventListener("click", function(){
   var prefix = "subscribe:"
+  var res = prefix.concat(chatInput.value)
+  channel.push("new_msg", {body: res}) //push to channel
+  chatInput.value = "" //to reset it
+})
+
+//hashtag
+hashtag.addEventListener("click", function(){
+  var prefix = "get:"
+  var res = prefix.concat(chatInput.value)
+  channel.push("new_msg", {body: res}) //push to channel
+  chatInput.value = "" //to reset it
+})
+
+//mention (same as hashtag)
+mention.addEventListener("click", function(){
+  var prefix = "get:"
   var res = prefix.concat(chatInput.value)
   channel.push("new_msg", {body: res}) //push to channel
   chatInput.value = "" //to reset it
