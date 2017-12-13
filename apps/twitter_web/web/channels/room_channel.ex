@@ -62,7 +62,7 @@ defmodule TwitterWeb.RoomChannel do
                                 "Tweets with mention #{tag} are: " <> GenServer.call(engine_pid, {:mention, :mention, tag}) |> Enum.join(", ")
                             true -> "Error: Invalid tag. It should either start with # or @"
                         end
-                    String.starts_with?(body, "retweet:" ) || String.starts_with?(body, "Retweet:") -> #retweet
+                    String.starts_with?(body, "retweet:" ) -> #retweet
                         tweetid = body |> String.slice(8..-1) |> String.trim()
                         is_int = case :re.run(tweetid, "^[0-9]*$") do
                             {:match, _} -> true
