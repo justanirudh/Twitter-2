@@ -12,11 +12,12 @@
 -->
 <div id="messages"></div>
 <br /> <br /> 
-1. register <br /> 
-2. tweet: [TWEET] <br /> 
-3. subscribe: [SUBSCRIBE_TO_ID]<br /> 
-4. get: [HASHTAG | MENTION]<br /> 
-5. retweet: [TWEET_ID]<br /> <br /> 
+1. Register: first, click register once <br /> 
+2. Tweet: write something in textbox and click the button <br /> 
+3. Subscribe to: write a valid ID in the textbox and click the button. Subscribes current user to the feed of inputted user<br /> 
+4. Get Hashtag: write a word starting with a '#' and click the button. Prints all tweets with that hashtag<br /> 
+5. Get Mention: write a word starting with a '@' and click the button. Prints all tweets with that mention<br /> 
+6. Retweet: write a valid tweet id in the textbox and click the button. Retweets the tweet with that tweet id<br /> <br /> 
 
 <input type="button" id="register" value="Register" /> <br /> <br />
 <input type="button" id="tweet" value="Tweet" /> &nbsp;&nbsp;

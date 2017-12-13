@@ -63,13 +63,11 @@ It contains the API logic. Phoenix takes care of serializing and deserializing t
 4. "tag" - getting all tweets that have a particular hashtag or a particular mention
 5. "retweet" - retweeting a tweet that came in a user's feed from another user.
 A typical API call looks like this:
-
 //retweet
 retweet.addEventListener("click", function(){
   channel.push("retweet", {body: chatInput.value}) //push to channel
   chatInput.value = "" //to reset it
 })
-
 It sends the relevant information to the handle_in function that matches with 'retweet'
 
 ##room_channel.ex (Client using Phoenix)
@@ -81,6 +79,14 @@ This is the primary interface between Twitter engine and client. It has methods 
 3. "subscribe" = subscribing to a user by a user
 4. "tag" - getting all tweets that have a particular hashtag or a particular mention
 5. "retweet" - retweeting a tweet that came in a user's feed from another user.
+A typical endpoint looks like this:
+    #tweet
+    def handle_in("tweet", %{"body" => body}, socket) do
+        userid = socket.assigns[:userid]
+        . . . .
+        push socket, "new_msg", %{body: res}
+        {:noreply, socket}
+    end
 
 #modifications to the engine (Changed in engine using Phoenix)
 I had to do a few modifications to the engine to work with channels
