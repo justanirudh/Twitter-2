@@ -22,19 +22,18 @@ defmodule UserIdSubscribedto do
 
     #update
     def handle_call({:update, userId, subscribeToId}, _from, state) do
-        if(:ets.lookup(:uss_table, userId) == [] || 
-        :ets.lookup(:uss_table, subscribeToId) == [] ||
-        Enum.member?(:ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1), subscribeToId) == true) do
-            #if either of them is not registered OR if they are already in each other's lists
-            IO.inspect "either ids not registered or already subscribed"
-            #NOP
-        else
-            #add to subscribed_to list of userid
-            subscribed_to_list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1)        
-            #replace row
-            :ets.insert(:uss_table, {userId, [subscribeToId | subscribed_to_list]})
+        cond do
+            :ets.lookup(:uss_table, subscribeToId) == [] -> 
+                {:reply, "Error: user #{subscribeToId} does not exist",  state}
+            Enum.member?(:ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1), subscribeToId) == true -> 
+                {:reply, "Error: You are already subscribed to #{subscribeToId}",  state}
+            true ->
+                #add to subscribed_to list of userid
+                subscribed_to_list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1)        
+                #replace row
+                :ets.insert(:uss_table, {userId, [subscribeToId | subscribed_to_list]})
+                {:reply, "You are subscribed to feed of #{subscribeToId}",  state}
         end
-        {:reply, :ok,  state}
     end
 
     def handle_info(_msg, state) do #catch unexpected messages
