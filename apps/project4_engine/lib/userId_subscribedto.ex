@@ -24,7 +24,7 @@ defmodule UserIdSubscribedto do
     def handle_call({:update, userId, subscribeToId}, _from, state) do
         cond do
             :ets.lookup(:uss_table, subscribeToId) == [] -> 
-                {:reply, "Error: user #{subscribeToId} does not exist",  state}
+                {:reply, "Error: User #{subscribeToId} does not exist",  state}
             Enum.member?(:ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1), subscribeToId) == true -> 
                 {:reply, "Error: You are already subscribed to #{subscribeToId}",  state}
             true ->
