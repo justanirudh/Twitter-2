@@ -22,10 +22,33 @@ defmodule Engine do
         |> Enum.map(fn({tw,_}) -> tw end)
     end
 
-    defp push_tweet_to_all_subscribers(userId, tweet) do
+    defp push_tweet_to_all_subscribers(userId, tweet, curr_tweet_id) do
         subscribers = GenServer.call(:uss, {:get, :subscribers, userId})
         channelpids = Enum.map(subscribers, fn(sid) -> GenServer.call(:uc, {:get, sid}) end)
-        channelpids |> Enum.each(fn(cpid) ->  send(cpid, {:feed, userId, tweet})  end)
+        channelpids |> Enum.each(fn(cpid) ->  send(cpid, {:feed, userId, tweet, curr_tweet_id})  end)
+    end
+
+    #being used both for tweeting and retweeting
+    defp tweet_me(userId, tweet, state) do
+        curr_time = System.monotonic_time(:microsecond)
+        hashtags = get_hashtags(tweet)
+        mentions = get_mentions(tweet)
+        curr_tweet_id = Map.get(state, :curr_tweet_id)
+        #add to userid-tweetids table
+        :ok = GenServer.call(:ut, {:insert_or_update, userId, curr_tweet_id}, :infinity)
+        #add to tweetid-tweet-ts table
+        :ok = GenServer.call(:tt, {:insert, curr_tweet_id, tweet, curr_time}, :infinity)
+        #add to hashtag-tweetid table
+        if(hashtags != []) do
+            :ok = GenServer.call(:ht, {:insert_or_update, hashtags, curr_tweet_id}, :infinity)    
+        end     
+        #add to mention-tweedtid table
+        if(mentions != []) do
+            :ok = GenServer.call(:mt, {:insert_or_update, mentions, curr_tweet_id}, :infinity)    
+        end
+        #push tweet to all subscribers
+        push_tweet_to_all_subscribers(userId, tweet, curr_tweet_id)
+        curr_tweet_id
     end
 
     def init(state) do
@@ -101,25 +124,41 @@ defmodule Engine do
 
     #tweet-tested
     def handle_call({:tweet, userId, tweet}, _from,state) do
-        curr_time = System.monotonic_time(:microsecond)
-        hashtags = get_hashtags(tweet)
-        mentions = get_mentions(tweet)
-        curr_tweet_id = Map.get(state, :curr_tweet_id)
-        #add to userid-tweetids table
-        :ok = GenServer.call(:ut, {:insert_or_update, userId, curr_tweet_id}, :infinity)
-        #add to tweetid-tweet-ts table
-        :ok = GenServer.call(:tt, {:insert, curr_tweet_id, tweet, curr_time}, :infinity)
-        #add to hashtag-tweetid table
-        if(hashtags != []) do
-            :ok = GenServer.call(:ht, {:insert_or_update, hashtags, curr_tweet_id}, :infinity)    
-        end     
-        #add to mention-tweedtid table
-        if(mentions != []) do
-            :ok = GenServer.call(:mt, {:insert_or_update, mentions, curr_tweet_id}, :infinity)    
-        end
-        #push tweet to all subscribers
-        push_tweet_to_all_subscribers(userId, tweet)
+        # curr_time = System.monotonic_time(:microsecond)
+        # hashtags = get_hashtags(tweet)
+        # mentions = get_mentions(tweet)
+        # curr_tweet_id = Map.get(state, :curr_tweet_id)
+        # #add to userid-tweetids table
+        # :ok = GenServer.call(:ut, {:insert_or_update, userId, curr_tweet_id}, :infinity)
+        # #add to tweetid-tweet-ts table
+        # :ok = GenServer.call(:tt, {:insert, curr_tweet_id, tweet, curr_time}, :infinity)
+        # #add to hashtag-tweetid table
+        # if(hashtags != []) do
+        #     :ok = GenServer.call(:ht, {:insert_or_update, hashtags, curr_tweet_id}, :infinity)    
+        # end     
+        # #add to mention-tweedtid table
+        # if(mentions != []) do
+        #     :ok = GenServer.call(:mt, {:insert_or_update, mentions, curr_tweet_id}, :infinity)    
+        # end
+        # #push tweet to all subscribers
+        # push_tweet_to_all_subscribers(userId, tweet, curr_tweet_id)
+        curr_tweet_id = tweet_me(userId, tweet, state)
 
         {:reply, :ok, Map.put(state, :curr_tweet_id, curr_tweet_id + 1)} 
     end
+
+    #retweet
+    def handle_call({:retweet, userid, tweetid}, _from, state) do
+        #get tweet
+        curr_tweet_id = Map.get(state, :curr_tweet_id)
+        if tweetid >= curr_tweet_id  do
+            {:reply, :fail, state} 
+        else
+            {tweet, _} = GenServer.call( :tt, {:get, tweetid}, :infinity)
+            #tweet
+            curr_tweet_id = tweet_me(userid, tweet, state)       
+            {:reply, {:ok, tweet}, Map.put(state, :curr_tweet_id, curr_tweet_id + 1)} 
+        end
+    end
+
 end

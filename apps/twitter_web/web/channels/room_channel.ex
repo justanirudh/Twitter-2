@@ -43,7 +43,7 @@ defmodule TwitterWeb.RoomChannel do
                             IO.inspect "inputted non-integer id"
                             "Error: Please input a valid userid."        
                         end
-                    String.starts_with?(body, "get:" ) || String.starts_with?(body, "Get:") -> #get # or mention
+                    String.starts_with?(body, "get:" ) || String.starts_with?(body, "Get:") -> #get # or @
                         tag = body |> String.slice(4..-1) |> String.trim()
                         cond do
                             String.starts_with?(tag, "#" ) ->
@@ -51,6 +51,22 @@ defmodule TwitterWeb.RoomChannel do
                             String.starts_with?(tag, "@" ) ->
                                 GenServer.call(engine_pid, {:mention, :mention, tag}) |> Enum.join(", ")
                             true -> "Error: Invalid tag. It should either start with # or @"
+                        end
+                    String.starts_with?(body, "retweet:" ) || String.starts_with?(body, "Retweet:") -> #retweet
+                        tweetid = body |> String.slice(8..-1) |> String.trim()
+                        is_int = case :re.run(tweetid, "^[0-9]*$") do
+                            {:match, _} -> true
+                            :nomatch -> false
+                        end
+                        if is_int == true do
+                            ret = GenServer.call(engine_pid, {:retweet, userid, tweetid |> String.to_integer}) 
+                            case ret do
+                                :fail -> "Error: Please input a valid tweetid to retweet."
+                                {:ok, tweet} -> "You retweeted: #{tweet}"     
+                            end
+                        else
+                            IO.inspect "inputted non-integer id"
+                            "Error: Please input a valid tweetid to retweet."        
                         end
 
                     true -> #catch all 
@@ -63,8 +79,8 @@ defmodule TwitterWeb.RoomChannel do
         {:noreply, socket}
     end
 
-    def handle_info({:feed, userId, tweet}, socket) do
-        res = "UserId " <> Integer.to_string(userId) <> " tweeted: #{tweet}"
+    def handle_info({:feed, userId, tweet, tweet_id}, socket) do
+        res = "UserId " <> Integer.to_string(userId) <> " tweeted: '#{tweet}'. You can use id " <> Integer.to_string(tweet_id) <> " to retweet"
         push socket, "new_msg", %{body: res}
         {:noreply, socket}
       end
