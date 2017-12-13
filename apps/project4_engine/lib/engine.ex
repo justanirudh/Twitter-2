@@ -37,10 +37,12 @@ defmodule Engine do
     end
 
     #register - tested
-    def handle_call(:register, _from, state) do
+    def handle_call({:register, channel_pid}, _from, state) do
         curr_user_id = Map.get(state, :curr_user_id)
-        #IO.inspect "registering user with id #{curr_user_id}"
+        #add to userid-substo-subscribers table
         :ok = GenServer.call(:uss, {:insert, curr_user_id})
+        #add to userid-channelpid map
+        :ok = GenServer.call(:uc, {:insert, curr_user_id, channel_pid})
         {:reply, curr_user_id, Map.put(state, :curr_user_id, curr_user_id + 1 )} #reply their userid to client
     end
 

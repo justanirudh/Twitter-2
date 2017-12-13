@@ -14,7 +14,8 @@ defmodule TwitterWeb.RoomChannel do
         engine_pid = socket.assigns[:engine_pid]
         res = cond do
             userid == nil && body == "register" -> #register
-                userid = GenServer.call(engine_pid, :register)
+                channel_pid = self()
+                userid = GenServer.call(engine_pid, {:register, channel_pid})
                 socket = assign(socket, :userid, userid)
                 "Registered. Your userid is #{userid |> Integer.to_string}"
             userid == nil -> 

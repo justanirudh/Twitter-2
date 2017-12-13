@@ -19,6 +19,7 @@ defmodule TwitterEngine do
     elem(GenServer.start_link(HashtagTweetIds, []), 1) |> Process.register(:ht)
     elem(GenServer.start_link(MentionTweetIds, []), 1) |> Process.register(:mt)
     elem(GenServer.start_link(TweetIdTweet, []), 1) |> Process.register(:tt)
+    elem(GenServer.start_link(UserIdChannelPId, []), 1) |> Process.register(:uc)
 
     #engine
     #epmd -daemon

@@ -1,9 +1,8 @@
 defmodule UserIdSubscribedtoSubscribers do
     use GenServer
-    #schema: userid string, subscribed_to_id []
+    #schema: userid string, subscribed_to_id [], subscribers []
 
     def init(state) do
-        #{:write_concurrency,true}, {:read_concurrency,true}
         :ets.new(:uss_table, [:set, :public, :named_table])
         {:ok, state}
     end
@@ -14,7 +13,7 @@ defmodule UserIdSubscribedtoSubscribers do
         {:reply, :ok, state}
     end
 
-    #get subscribed to
+    #get subscribed-to
     def handle_call({:get, :subscribed_to, userId}, _from, state) do
         list = :ets.lookup(:uss_table, userId) |> Enum.at(0) |> elem(1)     
         {:reply, list, state}
