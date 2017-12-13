@@ -31,7 +31,7 @@ defmodule TwitterWeb.RoomChannel do
                         :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
                         "You tweeted: #{tweet_content}"
     
-                    String.starts_with?(body, "subscribe:" ) || String.starts_with?(body, "Subscribe:") ->
+                    String.starts_with?(body, "subscribe:" ) || String.starts_with?(body, "Subscribe:") -> #subscribe
                         subsId = body |> String.slice(10..-1) |> String.trim()
                         is_int = case :re.run(subsId, "^[0-9]*$") do
                             {:match, _} -> true
@@ -42,6 +42,15 @@ defmodule TwitterWeb.RoomChannel do
                         else
                             IO.inspect "inputted non-integer id"
                             "Error: Please input a valid userid."        
+                        end
+                    String.starts_with?(body, "get:" ) || String.starts_with?(body, "Get:") -> #get # or mention
+                        tag = body |> String.slice(4..-1) |> String.trim()
+                        cond do
+                            String.starts_with?(tag, "#" ) ->
+                                GenServer.call(engine_pid, {:hashtag, :hashtag, tag}) |> Enum.join(", ")
+                            String.starts_with?(tag, "@" ) ->
+                                GenServer.call(engine_pid, {:mention, :mention, tag}) |> Enum.join(", ")
+                            true -> "Error: Invalid tag. It should either start with # or @"
                         end
 
                     true -> #catch all 

@@ -35,7 +35,7 @@
   </div>
 </div>
 
-<!--TODO: better way to input all commands? -->
+<!--TODO: better way to input all commands. Change them to buttons? -->
 <!--
 # ./project4_client simulate see_tweets NUM_CLIENTS (tweet: tweet) #takes first 140 chars
 # ./project4_client simulate see_tweet_rate NUM_CLIENTS (tweet: tweet)
