@@ -58,10 +58,20 @@ socket.connect()
 // let channel = socket.channel("topic:subtopic", {})
 let channel           = socket.channel("room:lobby", {})
 let chatInput         = document.querySelector("#chat-input")
-// let register         = document.querySelector("#register")
 let messagesContainer = document.querySelector("#messages")
+let register = document.querySelector("#register")
+let tweet = document.querySelector("#tweet")
 
-//typing and entering in textbox
+register.addEventListener("click", function(){
+  channel.push("new_msg", {body: "register"}) //push to channel
+})
+
+tweet.addEventListener("click", function(){
+  channel.push("new_msg", {body: chatInput.value}) //push to channel
+  chatInput.value = "" //to reset it
+})
+
+//TODO: remove this
 chatInput.addEventListener("keypress", event => {
   if(event.keyCode === 13){
     channel.push("new_msg", {body: chatInput.value}) //push to channel
