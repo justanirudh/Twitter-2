@@ -19,10 +19,10 @@
 4. get: [HASHTAG | MENTION]<br /> 
 5. retweet: [TWEET_ID]<br /> <br /> 
 
-<input type="button" id="register" value="Register" /> <br /> <br /> 
-<input type="button" id="tweet" value="Tweet" /> <br /> <br /> 
-<input type="button" id="subscribe" value="Subscribe to" /> <br /> <br /> 
-<input type="button" id="hashtag" value="Get Hashtag(start with #)" /> <br /> <br /> 
+<input type="button" id="register" value="Register" /> &nbsp;&nbsp;
+<input type="button" id="tweet" value="Tweet" /> &nbsp;&nbsp;
+<input type="button" id="subscribe" value="Subscribe to" /> &nbsp;&nbsp;
+<input type="button" id="hashtag" value="Get Hashtag(start with #)" /> &nbsp;&nbsp;
 <input type="button" id="mention" value="Get Mention(start with @)" /> <br /> <br />
 <input type="button" id="retweet" value="Retweet" /> <br /> <br /> 
 
