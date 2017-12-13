@@ -14,7 +14,11 @@
 5. retweet: [TWEET_ID]
 -->
 
-
+1. register <br /> 
+2. tweet: [TWEET] <br /> 
+3. subscribe: [SUBSCRIBE_TO_ID]<br /> 
+4. get: [HASHTAG | MENTION]<br /> 
+5. retweet: [TWEET_ID]<br /> <br /> 
 <div id="messages"></div>
 <%# Register(type 'y' and enter): <input id="register" type="text"></input> %>
 <input id="chat-input" type="text"></input>
