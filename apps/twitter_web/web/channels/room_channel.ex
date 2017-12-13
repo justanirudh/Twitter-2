@@ -3,11 +3,13 @@ defmodule TwitterWeb.RoomChannel do
     #all actions will be here
     #state: {%userid -> userid}
   
+    #join
     def join("room:lobby", _message, socket) do
         engine_pid = :global.whereis_name(:engine)
         {:ok, assign(socket, :engine_pid, engine_pid)}
     end
 
+    #register
     def handle_in("register", %{}, socket) do
         userid = socket.assigns[:userid]
         res = if(userid != nil) do
@@ -23,18 +25,68 @@ defmodule TwitterWeb.RoomChannel do
         {:noreply, socket}
     end
 
-    def handle_in("tweet", %{"body" => tweet_content}, socket) do
+    #tweet
+    def handle_in("tweet", %{"body" => body}, socket) do
         userid = socket.assigns[:userid]
         res = if(userid == nil) do
             "Error: You have not registered. First register by typing 'register' in textbox"
         else
             engine_pid = socket.assigns[:engine_pid]
+            tweet_content = body |> String.trim()
             if tweet_content == "" do
                 "Error: Empty tweet"
             else
                 :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
                 "You tweeted: #{tweet_content}"
             end    
+        end
+        push socket, "new_msg", %{body: res}
+        {:noreply, socket}
+    end
+
+    #subscribe
+    def handle_in("subscribe", %{"body" => body}, socket) do
+        userid = socket.assigns[:userid]
+        res = if(userid == nil) do
+            "Error: You have not registered. First register by typing 'register' in textbox"
+        else
+            engine_pid = socket.assigns[:engine_pid]
+            subsId = body |> String.trim()
+            is_int = case :re.run(subsId, "^[0-9]*$") do
+                {:match, _} -> true
+                :nomatch -> false
+            end
+            if is_int == true do
+                subsId = subsId |> String.to_integer
+                if subsId == userid do
+                    "Error: Cannot subscribe to oneself"    
+                else
+                    GenServer.call(engine_pid, {:subscribe, userid, subsId}) 
+                end
+            else
+                IO.inspect "inputted non-integer id"
+                "Error: Please input a valid userid."        
+            end  
+        end
+        push socket, "new_msg", %{body: res}
+        {:noreply, socket}
+    end
+
+    #get hashtag/mention
+    def handle_in("tag", %{"body" => body}, socket) do
+        userid = socket.assigns[:userid]
+        res = if(userid == nil) do
+            "Error: You have not registered. First register by typing 'register' in textbox"
+        else
+            engine_pid = socket.assigns[:engine_pid]
+            tag = body |> String.trim()
+            cond do
+                String.starts_with?(tag, "#" ) ->
+                    "Tweets with hashtag #{tag} are: " <> (GenServer.call(engine_pid, {:hashtag, :hashtag, tag}) |> Enum.join(", "))
+                String.starts_with?(tag, "@" ) ->
+                    "Tweets with mention #{tag} are: " <> (GenServer.call(engine_pid, {:mention, :mention, tag}) |> Enum.join(", "))
+                true -> "Error: Invalid tag. It should either start with # or @"
+            end   
         end
         push socket, "new_msg", %{body: res}
         {:noreply, socket}
@@ -59,32 +111,32 @@ defmodule TwitterWeb.RoomChannel do
                     # body == "register" -> #2nd time register
                     #     "Error: Already registered."
 
-                    String.starts_with?(body, "tweet:" )  -> #tweet
-                        tweet_content = body |> String.slice(6..-1) |> String.trim()
-                        if tweet_content == "" do
-                            "Error: Empty tweet"
-                        else
-                            :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
-                            "You tweeted: #{tweet_content}"
-                        end    
+                    # String.starts_with?(body, "tweet:" )  -> #tweet
+                    #     tweet_content = body |> String.slice(6..-1) |> String.trim()
+                    #     if tweet_content == "" do
+                    #         "Error: Empty tweet"
+                    #     else
+                    #         :ok = GenServer.call(engine_pid, {:tweet, userid, tweet_content}, :infinity)
+                    #         "You tweeted: #{tweet_content}"
+                    #     end    
                         
-                    String.starts_with?(body, "subscribe:" ) -> #subscribe
-                        subsId = body |> String.slice(10..-1) |> String.trim()
-                        is_int = case :re.run(subsId, "^[0-9]*$") do
-                            {:match, _} -> true
-                            :nomatch -> false
-                        end
-                        if is_int == true do
-                            subsId = subsId |> String.to_integer
-                            if subsId == userid do
-                                "Error: Cannot subscribe to oneself"    
-                            else
-                                GenServer.call(engine_pid, {:subscribe, userid, subsId}) 
-                            end
-                        else
-                            IO.inspect "inputted non-integer id"
-                            "Error: Please input a valid userid."        
-                        end
+                    # String.starts_with?(body, "subscribe:" ) -> #subscribe
+                    #     subsId = body |> String.slice(10..-1) |> String.trim()
+                    #     is_int = case :re.run(subsId, "^[0-9]*$") do
+                    #         {:match, _} -> true
+                    #         :nomatch -> false
+                    #     end
+                    #     if is_int == true do
+                    #         subsId = subsId |> String.to_integer
+                    #         if subsId == userid do
+                    #             "Error: Cannot subscribe to oneself"    
+                    #         else
+                    #             GenServer.call(engine_pid, {:subscribe, userid, subsId}) 
+                    #         end
+                    #     else
+                    #         IO.inspect "inputted non-integer id"
+                    #         "Error: Please input a valid userid."        
+                    #     end
                     String.starts_with?(body, "get:") -> #get # or @
                         tag = body |> String.slice(4..-1) |> String.trim()
                         cond do
