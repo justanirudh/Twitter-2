@@ -61,13 +61,24 @@ let chatInput         = document.querySelector("#chat-input")
 let messagesContainer = document.querySelector("#messages")
 let register = document.querySelector("#register")
 let tweet = document.querySelector("#tweet")
+let subscribe = document.querySelector("#subscribe")
 
+//register
 register.addEventListener("click", function(){
   channel.push("new_msg", {body: "register"}) //push to channel
 })
 
+//tweet
 tweet.addEventListener("click", function(){
   var prefix = "tweet:"
+  var res = prefix.concat(chatInput.value)
+  channel.push("new_msg", {body: res}) //push to channel
+  chatInput.value = "" //to reset it
+})
+
+//subscribe
+subscribe.addEventListener("click", function(){
+  var prefix = "subscribe:"
   var res = prefix.concat(chatInput.value)
   channel.push("new_msg", {body: res}) //push to channel
   chatInput.value = "" //to reset it

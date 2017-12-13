@@ -36,14 +36,19 @@ defmodule TwitterWeb.RoomChannel do
                             "You tweeted: #{tweet_content}"
                         end    
                         
-                    String.starts_with?(body, "subscribe:" ) || String.starts_with?(body, "Subscribe:") -> #subscribe
+                    String.starts_with?(body, "subscribe:" ) -> #subscribe
                         subsId = body |> String.slice(10..-1) |> String.trim()
                         is_int = case :re.run(subsId, "^[0-9]*$") do
                             {:match, _} -> true
                             :nomatch -> false
                         end
                         if is_int == true do
-                            GenServer.call(engine_pid, {:subscribe, userid, subsId |> String.to_integer}) 
+                            subsId = subsId |> String.to_integer
+                            if subsId == userid do
+                                "Error: Cannot subscribe to oneself"    
+                            else
+                                GenServer.call(engine_pid, {:subscribe, userid, subsId}) 
+                            end
                         else
                             IO.inspect "inputted non-integer id"
                             "Error: Please input a valid userid."        
