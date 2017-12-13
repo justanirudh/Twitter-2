@@ -18,11 +18,11 @@ defmodule TwitterWeb.RoomChannel do
         engine_pid = socket.assigns[:engine_pid]
 
         res = cond do
-            body == "register" -> 
+            body == "register" -> #register
                 userid = GenServer.call(engine_pid, :register)
                 socket = assign(socket, :userid, userid)
                 "Registered. Your userid is #{userid |> Integer.to_string}"
-            String.starts_with? body, "tweet:" -> 
+            String.starts_with?(body, "tweet:" ) || String.starts_with?(body, "Tweet:") -> #tweet
                 tweet_content = body |> String.slice(6..139) |> String.trim()
                 userid = socket.assigns[:userid]
                 if userid == nil do
@@ -34,7 +34,7 @@ defmodule TwitterWeb.RoomChannel do
             true -> 
                 "unsupported command: " <> body
         end
-        broadcast! socket, "new_msg", %{body: res}
+        push socket, "new_msg", %{body: res}
         {:noreply, socket}
     end
 
