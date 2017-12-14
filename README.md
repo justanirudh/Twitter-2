@@ -1,15 +1,17 @@
 # Twitter
 
+Team Members(1): Anirudh Pathak
+
+#Link to demo video
+https://youtu.be/7Dk2QOyWk30
+
 #How to run
 1. Go to root directory of the mix umbrella project
 2. type 'mix phx.server'
 3. Go to http://0.0.0.0:4000/ to look at the website
 
-#Link to demo video
-#TODO
-
 #Overview
-I have created a website with minimal UI to demonstrate the usage of websockets in Phoenix. The backend of the UI is the Twitter engine I created in Project-4. I have also included the simulator from Project-4 but it is not being used anywhere as it is replaced by Phoenix being the new client. All important user-related log messages are printed on the webpage itself. The feed of the user is also of course printed on the webpage 
+I have created a website with minimal UI to demonstrate the usage of websockets in Phoenix. The backend of the UI is the Twitter engine I created in Project-4. I have also included the simulator from Project-4 but it is not being used anywhere. The clients are the webpages now with the Phoenix acting as an interface to implement websockets between clients and the twitter engine. All important user-related log messages are printed on the webpage itself (tweeting, feed, retweeting, getting hashtags, etc.). The feed of the user is also of course printed on the webpage 
 
 #How to operate the website
 You should see 6 buttons and 1 textbox in the website:
@@ -33,36 +35,39 @@ Now anytime the user you have subscribed to tweets, you will see it in your feed
 After you have subscribed, you will see 'You are subscribed to feed of [USERID]' printed. Now anytime USERID tweets, you will see it in your feed
 
 **Get Hashtag**: You can get all tweets that contain a particular hashtag by:
-1. Entering teh value of the hashtag in the TEXT-BOX
+1. Entering the value of the hashtag in the TEXT-BOX
 2. Hit the 'Get Hashtag' button
 All the tweets will be printed in your feed
 
 **Get Mention**: You can get all tweets that contain a particular mention by:
-1. Entering the value of the hashtag in the TEXT-BOX
+1. Entering the value of the mention in the TEXT-BOX
 2. Hit the 'Get Mention' button
 All the tweets will be printed in your feed
 
 **Retweet**: You can retweet a tweet of one of the users you are subscribed to by using the tweet's id:
-1. Get the tweet's id. Everytime a user tweets, all it's subscribers feeds get the tweet along with the tweet id. The id can be used to reetweet. I have included how to do this in the demo
+1. Get the tweet's id. Everytime a user tweets, all it's subscribers feeds get the tweet along with the tweet id. The id can be used to retweet. I have included how to do this in the demo
 2. Enter the tweet-id in the TEXT-BOX
 3. Hit Retweet
-If oyu have something like this: 'UserId 0 tweeted: 'mellow'. You can use id 2 to retweet' in your feed. You can input '0' in TEXT-BOX and hit retweet
+If you have something like this: 'UserId 0 tweeted: 'mellow'. You can use id 2 to retweet' in your feed. You can input '0' in TEXT-BOX and hit retweet
 
 
 #Implementation and Error handling
 
+#twitter_web.ex
+Starts the application and the twitter engine
+
 ##index.html
 It contains the Ui logic
 
-##socket.js (APIs in javascript)
-It contains the API logic. Phoenix takes care of serializing and deserializing the javascript objects. Hence, it is not required to be done by hand. Every button has a listener associated with it. In accordance with what button was pressed, I send the relevant information to the appriopiate handle_in function in the Channel. 
+##socket.js (API usage on client end)
+It contains the API logic. Phoenix takes care of serializing and deserializing the javascript objects. Hence, it is not required to be done by hand. Every button has a listener associated with it. In accordance with what button was pressed, I send the relevant information to the appriopiate handle_in() function in the Channel. 
 ##using API endpoints
 1. "register" - registering a userid
 2. "tweet" - tweeting by a user
 3. "subscribe" = subscribing to a user by a user
 4. "tag" - getting all tweets that have a particular hashtag or a particular mention
 5. "retweet" - retweeting a tweet that came in a user's feed from another user.
-A typical API call looks like this:
+A typical API usage call looks like this:
 //retweet
 retweet.addEventListener("click", function(){
   channel.push("retweet", {body: chatInput.value}) //push to channel
@@ -70,7 +75,7 @@ retweet.addEventListener("click", function(){
 })
 It sends the relevant information to the handle_in function that matches with 'retweet'
 
-##room_channel.ex (Client using Phoenix)
+##room_channel.ex (API endpoints in Phoenix)
 This is the primary interface between Twitter engine and client. It has methods that ping the engine. It is also pinged by the engine for sending feed information
 ###API endpoints
 0. join() - A new user joined a websocket connection
@@ -87,8 +92,9 @@ A typical endpoint looks like this:
         push socket, "new_msg", %{body: res}
         {:noreply, socket}
     end
+More information in the demo
 
-#modifications to the engine (Changed in engine using Phoenix)
+#modifications to the engine (Changes in engine using Phoenix)
 I had to do a few modifications to the engine to work with channels
 1. I added a new table that saves mapping of userid to channel-pid. This helps in efficient forwarding of feed information to subscribers of a user that just tweeted
 2. Addition of a subscribers column to userid-subscribedto table for efficient retreival of subscribers for a user

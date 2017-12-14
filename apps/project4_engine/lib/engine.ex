@@ -123,24 +123,6 @@ defmodule Engine do
 
     #tweet-tested
     def handle_call({:tweet, userId, tweet}, _from,state) do
-        # curr_time = System.monotonic_time(:microsecond)
-        # hashtags = get_hashtags(tweet)
-        # mentions = get_mentions(tweet)
-        # curr_tweet_id = Map.get(state, :curr_tweet_id)
-        # #add to userid-tweetids table
-        # :ok = GenServer.call(:ut, {:insert_or_update, userId, curr_tweet_id}, :infinity)
-        # #add to tweetid-tweet-ts table
-        # :ok = GenServer.call(:tt, {:insert, curr_tweet_id, tweet, curr_time}, :infinity)
-        # #add to hashtag-tweetid table
-        # if(hashtags != []) do
-        #     :ok = GenServer.call(:ht, {:insert_or_update, hashtags, curr_tweet_id}, :infinity)    
-        # end     
-        # #add to mention-tweedtid table
-        # if(mentions != []) do
-        #     :ok = GenServer.call(:mt, {:insert_or_update, mentions, curr_tweet_id}, :infinity)    
-        # end
-        # #push tweet to all subscribers
-        # push_tweet_to_all_subscribers(userId, tweet, curr_tweet_id)
         curr_tweet_id = tweet_me(userId, tweet, state)
 
         {:reply, :ok, Map.put(state, :curr_tweet_id, curr_tweet_id + 1)} 
